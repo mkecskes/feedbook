@@ -33,7 +33,6 @@ function getFeeds(feedList) {
             });
             req.addEventListener("error", function() {
                 alert("An error occured. " );
-                console.log(this);
                 hideSpinner();
             });
         });

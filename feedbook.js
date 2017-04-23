@@ -1,31 +1,97 @@
-var feeds = [
-    {
-        "site": "Index",
-        "url": "http://index.hu/24ora/rss/"
-    },{
-        "site": "24.hu",
-        "url": "http://24.hu/feed/"
-    },{
-        "site": "Magyar Idők",
-        "url": "http://magyaridok.hu/feed/"
-    }
-];
-
-var newsfeed = [];
-var counter = 0;
-
 window.onload = function() {
-    feeds.forEach(function (feed) {
-        var req  = new XMLHttpRequest();
-        req.open("GET", feed.url);
-        req.send();
-        req.addEventListener("load", function() {
-            parseFeed(this.responseText, feed);
-        });
-    });
+    var feedList = loadFeedList();
+    getFeeds(feedList);
+    listFeeds(feedList);
+
+    addFeedBtn.onclick = function() {
+        feedList = addFeed(feedList);
+    };
+
+    reloadFeedsBtn.onclick = function() {
+        getFeeds(feedList);
+    }
 }
 
-function parseFeed(responseText, feed) {
+function showSpinner() {
+    spinnerOverlay.style.display = "block";
+}
+
+function hideSpinner() {
+    spinnerOverlay.style.display = "none";
+}
+
+function getFeeds(feedList) {
+    if (feedList.length > 0) {
+        showSpinner();
+        var counter = [0], newsfeed = [];
+        feedList.forEach(function (feed) {
+            var req  = new XMLHttpRequest();
+            req.open("GET", feed.url);
+            req.send();
+            req.addEventListener("load", function() {
+                parseFeed(this.responseText, feed, newsfeed, counter, feedList.length);
+            });
+            req.addEventListener("error", function() {
+                alert("An error occured. " );
+                console.log(this);
+                hideSpinner();
+            });
+        });
+    }
+}
+
+function listFeeds(feedList) {
+    feedUl.innerHTML = "";
+    for (var i = 0; i < feedList.length; i++) {
+        var li = document.createElement("li");
+        li.textContent = feedList[i].site + " ";
+        var btn = document.createElement("button");
+        btn.textContent = "Remove";
+        btn.onclick = function(i) {
+            return function() {
+                removeFeed(feedList, i);
+            }
+        }(i);
+        li.appendChild(btn);
+        feedUl.appendChild(li);
+    };
+}
+
+function addFeed(feedList) {
+    feedList.push({
+        "site": site.value,
+        "url": url.value
+    });
+    site.value = "";
+    url.value = "";
+    saveFeedList(feedList);
+    getFeeds(feedList);
+    listFeeds(feedList);
+    return feedList;
+}
+
+function removeFeed(feedList, i) {
+    feedList.splice(i, 1);
+    saveFeedList(feedList);
+    getFeeds(feedList);
+    listFeeds(feedList);
+    return feedList;
+}
+
+function loadFeedList() {
+    if (localStorage.feedList) {
+        var feedList = JSON.parse(localStorage.feedList);
+    } else {
+        var feedList = [];
+    }
+    return feedList;
+}
+
+function saveFeedList(feedList) {
+    localStorage.feedList = JSON.stringify(feedList);
+}
+
+function parseFeed(responseText, feed, newsfeed, counter, totalFeeds) {
     var parser = new DOMParser();
     var xmlDoc = parser.parseFromString(responseText,"text/xml");
     var items = xmlDoc.getElementsByTagName("item");
@@ -39,7 +105,8 @@ function parseFeed(responseText, feed) {
         });
     }
 
-    if (++counter == feeds.length) {
+    if (++counter[0] == totalFeeds) {
+        hideSpinner();
         newsfeed = sortFeed(newsfeed);
         showFeed(newsfeed);
     }
@@ -53,10 +120,9 @@ function sortFeed(feed) {
 }
 
 function showFeed(feed) {
-    var feedBox = document.getElementById("feeds");
-
+    feedbox.innerHTML = "";
     feed.forEach(function (item) {
-        feedBox.innerHTML += "<div class=\"article\"><h1><a href=\"" + item.link +
+        feedbox.innerHTML += "<div class=\"article\"><h1><a href=\"" + item.link +
             "\">" + item.title + "</a></h1><p>" + item.site + " – " + item.date +
             "</p><p>" + item.description + "</p></div>";
     });

@@ -68,7 +68,8 @@ function listFeeds(feedList) {
 function addFeed(feedList) {
     feedList.push({
         "site": site.value,
-        "url": url.value
+        "url": url.value,
+        "color": colorPicker.value
     });
     site.value = "";
     url.value = "";

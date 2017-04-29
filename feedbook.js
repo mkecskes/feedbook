@@ -1,7 +1,6 @@
 window.onload = function() {
     var feedList = loadFeedList();
-    getFeeds(feedList);
-    listFeeds(feedList);
+    reloadPage(feedList);
 
     addFeedBtn.onclick = function() {
         feedList = addFeed(feedList);
@@ -10,6 +9,16 @@ window.onload = function() {
     reloadFeedsBtn.onclick = function() {
         getFeeds(feedList);
     }
+
+    saveFeedListBtn.onclick = function() {
+        feedList = editFeed();
+    }
+}
+
+function reloadPage(feedList) {
+    getFeeds(feedList);
+    listFeeds(feedList);
+    feedEditor.value = JSON.stringify(feedList, null, 2);
 }
 
 function showSpinner() {
@@ -64,16 +73,14 @@ function addFeed(feedList) {
     site.value = "";
     url.value = "";
     saveFeedList(feedList);
-    getFeeds(feedList);
-    listFeeds(feedList);
+    reloadPage(feedList);
     return feedList;
 }
 
 function removeFeed(feedList, i) {
     feedList.splice(i, 1);
     saveFeedList(feedList);
-    getFeeds(feedList);
-    listFeeds(feedList);
+    reloadPage(feedList);
     return feedList;
 }
 
@@ -125,4 +132,11 @@ function showFeed(feed) {
             "\">" + item.title + "</a></h1><p>" + item.site + " – " + item.date +
             "</p><p>" + item.description + "</p></div>";
     });
+}
+
+function editFeed() {
+    var feedList = JSON.parse(feedEditor.value);
+    saveFeedList(feedList);
+    reloadPage(feedList);
+    return feedList;
 }

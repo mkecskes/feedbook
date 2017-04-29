@@ -64,3 +64,8 @@ body {
         transform: perspective(300px) rotateX(-180deg) rotateY(-179.9deg);
     }
 }
+
+#feedEditor {
+    width: 100%;
+    height: 20em;
+}

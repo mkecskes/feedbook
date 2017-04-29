@@ -104,6 +104,7 @@ function parseFeed(responseText, feed, newsfeed, counter, totalFeeds) {
     for (var i = 0; i < items.length; i++) {
         newsfeed.push({
             "site": feed.site,
+            "color": feed.color,
             "title": items[i].getElementsByTagName("title")[0].textContent,
             "link": items[i].getElementsByTagName("link")[0].textContent,
             "date": new Date(items[i].getElementsByTagName("pubDate")[0].textContent),
@@ -129,7 +130,7 @@ function showFeed(feed) {
     feedbox.innerHTML = "";
     feed.forEach(function (item) {
         feedbox.innerHTML += "<div class=\"article\"><h1><a href=\"" + item.link +
-            "\">" + item.title + "</a></h1><p>" + item.site + " – " + item.date +
+            "\">" + item.title + "</a></h1><p><span class=\"site\" style=\"background-color: " + (item.color || "#888") + "\">" + item.site + "</span> " + item.date +
             "</p><p>" + item.description + "</p></div>";
     });
 }
